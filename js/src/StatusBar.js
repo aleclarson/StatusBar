@@ -1,8 +1,8 @@
-var Event, Factory, Hideable, NativeModules, OneOf, STYLE_MAP, StatusBar, assertType, ref;
+var Animation, Event, Factory, Hideable, OneOf, StatusBar, StatusBarManager, Style, assertType, ref;
 
 ref = require("type-utils"), OneOf = ref.OneOf, assertType = ref.assertType;
 
-NativeModules = require("component").NativeModules;
+StatusBarManager = require("NativeModules").StatusBarManager;
 
 Hideable = require("hideable");
 
@@ -10,15 +10,19 @@ Factory = require("factory");
 
 Event = require("event");
 
-STYLE_MAP = {
+Style = OneOf("StatusBar_Style", ["white", "black"]);
+
+Style.toNative = {
   white: "light-content",
   black: "default"
 };
 
+Animation = OneOf("StatusBar_Animation", ["none", "fade", "slide"]);
+
 module.exports = StatusBar = Factory("StatusBar", {
   singleton: true,
-  Style: OneOf(["white", "black"]),
-  Animation: OneOf(["none", "fade", "slide"]),
+  Style: Style,
+  Animation: Animation,
   customValues: {
     isBusy: {
       value: false,
@@ -27,7 +31,7 @@ module.exports = StatusBar = Factory("StatusBar", {
         if (isBusy === wasBusy) {
           return;
         }
-        return NativeModules.StatusBarManager.setNetworkActivityIndicatorVisible(isBusy);
+        return StatusBarManager.setNetworkActivityIndicatorVisible(isBusy);
       }
     },
     style: {
@@ -64,8 +68,8 @@ module.exports = StatusBar = Factory("StatusBar", {
         if (animation == null) {
           animation = "none";
         }
-        assertType(animation, StatusBar.Animation);
-        NativeModules.StatusBarManager.setHidden(false, animation);
+        assertType(animation, Animation);
+        StatusBarManager.setHidden(false, animation);
         onEnd();
       },
       hide: function(animation, onEnd) {
@@ -76,8 +80,8 @@ module.exports = StatusBar = Factory("StatusBar", {
         if (animation == null) {
           animation = "none";
         }
-        assertType(animation, StatusBar.Animation);
-        NativeModules.StatusBarManager.setHidden(true, animation);
+        assertType(animation, Animation);
+        StatusBarManager.setHidden(true, animation);
         onEnd();
       }
     });
@@ -90,11 +94,14 @@ module.exports = StatusBar = Factory("StatusBar", {
     }
   },
   setStyle: function(style, animated) {
-    assertType(style, StatusBar.Style);
+    if (animated == null) {
+      animated = false;
+    }
+    assertType(style, Style);
     if (style === this._style) {
       return;
     }
-    NativeModules.StatusBarManager.setStyle(STYLE_MAP[style], animated);
+    StatusBarManager.setStyle(Style.toNative[style], animated);
     this._style = style;
   },
   pushState: function(state) {
@@ -103,8 +110,8 @@ module.exports = StatusBar = Factory("StatusBar", {
     }
     validateTypes(state, {
       isHiding: [Boolean, Void],
-      animation: [StatusBar.Animation, Void],
-      style: [StatusBar.Style, Void],
+      animation: [Animation, Void],
+      style: [Style, Void],
       animatedStyle: [Boolean, Void]
     });
     if (state.isHiding == null) {

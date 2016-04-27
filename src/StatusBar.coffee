@@ -2,24 +2,35 @@
 { OneOf
   assertType } = require "type-utils"
 
-{ NativeModules } = require "component"
+{ StatusBarManager } = require "NativeModules"
 
 Hideable = require "hideable"
 Factory = require "factory"
 Event = require "event"
 
-STYLE_MAP =
+Style = OneOf "StatusBar_Style", [
+  "white"
+  "black"
+]
+
+Style.toNative =
   white: "light-content"
   black: "default"
 
+Animation = OneOf "StatusBar_Animation", [
+  "none"
+  "fade"
+  "slide"
+]
+
 module.exports =
-StatusBar = Factory "StatusBar",
+StatusBar = Factory "StatusBar", {
 
   singleton: yes
 
-  Style: OneOf [ "white", "black" ]
+  Style
 
-  Animation: OneOf [ "none", "fade", "slide" ]
+  Animation
 
   customValues:
 
@@ -28,7 +39,7 @@ StatusBar = Factory "StatusBar",
       reactive: yes
       didSet: (isBusy, wasBusy) ->
         return if isBusy is wasBusy
-        NativeModules.StatusBarManager.setNetworkActivityIndicatorVisible isBusy
+        StatusBarManager.setNetworkActivityIndicatorVisible isBusy
 
     style: get: ->
       @_style
@@ -59,8 +70,8 @@ StatusBar = Factory "StatusBar",
           onEnd = animation
           animation = null
         animation ?= "none"
-        assertType animation, StatusBar.Animation
-        NativeModules.StatusBarManager.setHidden no, animation
+        assertType animation, Animation
+        StatusBarManager.setHidden no, animation
         onEnd()
         return
 
@@ -69,8 +80,8 @@ StatusBar = Factory "StatusBar",
           onEnd = animation
           animation = null
         animation ?= "none"
-        assertType animation, StatusBar.Animation
-        NativeModules.StatusBarManager.setHidden yes, animation
+        assertType animation, Animation
+        StatusBarManager.setHidden yes, animation
         onEnd()
         return
 
@@ -78,10 +89,10 @@ StatusBar = Factory "StatusBar",
     if state.isHiding then @hide state.animation
     else @show state.animation
 
-  setStyle: (style, animated) ->
-    assertType style, StatusBar.Style
+  setStyle: (style, animated = no) ->
+    assertType style, Style
     return if style is @_style
-    NativeModules.StatusBarManager.setStyle STYLE_MAP[style], animated
+    StatusBarManager.setStyle Style.toNative[style], animated
     @_style = style
     return
 
@@ -89,8 +100,8 @@ StatusBar = Factory "StatusBar",
 
     validateTypes state,
       isHiding: [ Boolean, Void ]
-      animation: [ StatusBar.Animation, Void ]
-      style: [ StatusBar.Style, Void ]
+      animation: [ Animation, Void ]
+      style: [ Style, Void ]
       animatedStyle: [ Boolean, Void ]
 
     state.isHiding ?= @isHiding
@@ -114,3 +125,4 @@ StatusBar = Factory "StatusBar",
     @_states.pop()
 
     @pushState @_states.pop()
+}
