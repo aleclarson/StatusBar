@@ -1,13 +1,20 @@
 {
   "name": "StatusBar",
   "version": "1.0.0",
-  "main": "./js/src/StatusBar",
+  "main": "js/src/StatusBar",
   "dependencies": {
+    "OneOf": "aleclarson/OneOf#1.0.0",
+    "assertType": "aleclarson/assertType#1.0.0",
     "component": "aleclarson/component#1.0.0",
-    "device": "aleclarson/device#1.0.0",
     "event": "aleclarson/event#1.0.0",
-    "factory": "aleclarson/factory#1.0.0",
-    "hideable": "aleclarson/hideable#1.0.0",
-    "type-utils": "aleclarson/type-utils#1.0.0"
+    "hideable": "aleclarson/hideable#1.0.0"
+  },
+  "lotus": {
+    "plugins": [
+      "lotus-coffee"
+    ],
+    "implicitDependencies": [
+      "NativeModules"
+    ]
   }
 }

@@ -1,12 +1,14 @@
-var Animation, Event, Factory, Hideable, OneOf, StatusBar, StatusBarManager, Style, assertType, ref;
-
-ref = require("type-utils"), OneOf = ref.OneOf, assertType = ref.assertType;
+var Animation, Component, Event, Hideable, OneOf, StatusBarManager, Style, assertType, type;
 
 StatusBarManager = require("NativeModules").StatusBarManager;
 
+Component = require("component").Component;
+
+assertType = require("assertType");
+
 Hideable = require("hideable");
 
-Factory = require("factory");
+OneOf = require("OneOf");
 
 Event = require("event");
 
@@ -19,73 +21,71 @@ Style.toNative = {
 
 Animation = OneOf("StatusBar_Animation", ["none", "fade", "slide"]);
 
-module.exports = StatusBar = Factory("StatusBar", {
-  singleton: true,
-  Style: Style,
-  Animation: Animation,
-  customValues: {
-    isBusy: {
-      value: false,
-      reactive: true,
-      didSet: function(isBusy, wasBusy) {
-        if (isBusy === wasBusy) {
-          return;
-        }
-        return StatusBarManager.setNetworkActivityIndicatorVisible(isBusy);
-      }
-    },
-    style: {
-      get: function() {
-        return this._style;
-      }
-    },
-    render: {
-      lazy: function() {
-        return require("./StatusBarView");
-      }
+type = Component.Type("StatusBar");
+
+type.exposeGetters(["style"]);
+
+type.defineReactiveValues({
+  _style: null
+});
+
+type.defineFrozenValues({
+  height: 21,
+  onPress: function() {
+    return Event();
+  },
+  _states: function() {
+    return [];
+  }
+});
+
+type.initInstance(function() {
+  var hide, show;
+  show = function(animation, onEnd) {
+    if (onEnd == null) {
+      onEnd = animation;
+      animation = null;
     }
-  },
-  initFrozenValues: function() {
-    return {
-      height: 21,
-      onPress: Event(),
-      _states: []
-    };
-  },
-  initReactiveValues: function() {
-    return {
-      _style: null
-    };
-  },
-  init: function() {
-    return Hideable(this, {
-      isHiding: null,
-      show: function(animation, onEnd) {
-        if (onEnd == null) {
-          onEnd = animation;
-          animation = null;
-        }
-        if (animation == null) {
-          animation = "none";
-        }
-        assertType(animation, Animation);
-        StatusBarManager.setHidden(false, animation);
-        onEnd();
-      },
-      hide: function(animation, onEnd) {
-        if (onEnd == null) {
-          onEnd = animation;
-          animation = null;
-        }
-        if (animation == null) {
-          animation = "none";
-        }
-        assertType(animation, Animation);
-        StatusBarManager.setHidden(true, animation);
-        onEnd();
+    if (animation == null) {
+      animation = "none";
+    }
+    assertType(animation, Animation);
+    StatusBarManager.setHidden(false, animation);
+    onEnd();
+  };
+  hide = function(animation, onEnd) {
+    if (onEnd == null) {
+      onEnd = animation;
+      animation = null;
+    }
+    if (animation == null) {
+      animation = "none";
+    }
+    assertType(animation, Animation);
+    StatusBarManager.setHidden(true, animation);
+    onEnd();
+  };
+  return Hideable(this, {
+    isHiding: null,
+    show: show,
+    hide: hide
+  });
+});
+
+type.defineProperties({
+  isBusy: {
+    value: false,
+    reactive: true,
+    didSet: function(isBusy, wasBusy) {
+      if (isBusy === wasBusy) {
+        return;
       }
-    });
-  },
+      return StatusBarManager.setNetworkActivityIndicatorVisible(isBusy);
+    }
+  }
+});
+
+type.defineMethods({
   setHiding: function(isHiding, animation) {
     if (state.isHiding) {
       return this.hide(state.animation);
@@ -139,5 +139,45 @@ module.exports = StatusBar = Factory("StatusBar", {
     return this.pushState(this._states.pop());
   }
 });
+
+type.propTypes = {
+  style: Style
+};
+
+type.defineNativeValues({
+  pointerEvents: function() {
+    return (function(_this) {
+      return function() {
+        if (_this.isHiding) {
+          return "none";
+        } else {
+          return "auto";
+        }
+      };
+    })(this);
+  }
+});
+
+type.defineStyles({
+  container: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: function() {
+      return this.height;
+    },
+    backgroundColor: "transparent"
+  }
+});
+
+type.render(function(props) {
+  return View({
+    pointerEvents: this.pointerEvents,
+    style: [this.styles.container(), props.style]
+  });
+});
+
+module.exports = type.construct();
 
 //# sourceMappingURL=../../map/src/StatusBar.map

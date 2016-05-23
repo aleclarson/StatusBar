@@ -1,89 +1,71 @@
 
-{ OneOf
-  assertType } = require "type-utils"
-
 { StatusBarManager } = require "NativeModules"
+{ Component } = require "component"
 
+assertType = require "assertType"
 Hideable = require "hideable"
-Factory = require "factory"
+OneOf = require "OneOf"
 Event = require "event"
 
-Style = OneOf "StatusBar_Style", [
-  "white"
-  "black"
-]
+Style = OneOf "StatusBar_Style", [ "white", "black" ]
+Style.toNative = { white: "light-content", black: "default" }
 
-Style.toNative =
-  white: "light-content"
-  black: "default"
+Animation = OneOf "StatusBar_Animation", [ "none", "fade", "slide" ]
 
-Animation = OneOf "StatusBar_Animation", [
-  "none"
-  "fade"
-  "slide"
-]
+type = Component.Type "StatusBar"
 
-module.exports =
-StatusBar = Factory "StatusBar", {
+type.exposeGetters [ "style" ]
 
-  singleton: yes
+type.defineReactiveValues
 
-  Style
+  _style: null
 
-  Animation
+type.defineFrozenValues
 
-  customValues:
+  height: 21
 
-    isBusy:
-      value: no
-      reactive: yes
-      didSet: (isBusy, wasBusy) ->
-        return if isBusy is wasBusy
-        StatusBarManager.setNetworkActivityIndicatorVisible isBusy
+  onPress: -> Event()
 
-    style: get: ->
-      @_style
+  _states: -> []
 
-    render: lazy: ->
-      require "./StatusBarView"
+type.initInstance ->
 
-  initFrozenValues: ->
+  show = (animation, onEnd) ->
+    unless onEnd?
+      onEnd = animation
+      animation = null
+    animation ?= "none"
+    assertType animation, Animation
+    StatusBarManager.setHidden no, animation
+    onEnd()
+    return
 
-    height: 21
+  hide = (animation, onEnd) ->
+    unless onEnd?
+      onEnd = animation
+      animation = null
+    animation ?= "none"
+    assertType animation, Animation
+    StatusBarManager.setHidden yes, animation
+    onEnd()
+    return
 
-    onPress: Event()
+  Hideable this, {
+    isHiding: null
+    show
+    hide
+  }
 
-    _states: []
+type.defineProperties
 
-  initReactiveValues: ->
+  isBusy:
+    value: no
+    reactive: yes
+    didSet: (isBusy, wasBusy) ->
+      return if isBusy is wasBusy
+      StatusBarManager.setNetworkActivityIndicatorVisible isBusy
 
-    _style: null
-
-  init: ->
-
-    Hideable this,
-
-      isHiding: null
-
-      show: (animation, onEnd) ->
-        unless onEnd?
-          onEnd = animation
-          animation = null
-        animation ?= "none"
-        assertType animation, Animation
-        StatusBarManager.setHidden no, animation
-        onEnd()
-        return
-
-      hide: (animation, onEnd) ->
-        unless onEnd?
-          onEnd = animation
-          animation = null
-        animation ?= "none"
-        assertType animation, Animation
-        StatusBarManager.setHidden yes, animation
-        onEnd()
-        return
+type.defineMethods
 
   setHiding: (isHiding, animation) ->
     if state.isHiding then @hide state.animation
@@ -125,4 +107,33 @@ StatusBar = Factory "StatusBar", {
     @_states.pop()
 
     @pushState @_states.pop()
-}
+
+#
+# Rendering
+#
+
+type.propTypes =
+  style: Style
+
+type.defineNativeValues
+
+  pointerEvents: -> =>
+    if @isHiding then "none" else "auto"
+
+type.defineStyles
+
+  container:
+    position: "absolute"
+    top: 0
+    left: 0
+    right: 0
+    height: -> @height
+    backgroundColor: "transparent"
+
+type.render (props) ->
+  return View {
+    @pointerEvents
+    style: [ @styles.container(), props.style ]
+  }
+
+module.exports = type.construct()
