@@ -158,6 +158,13 @@ type.defineNativeValues({
   }
 });
 
+type.render(function() {
+  return View({
+    pointerEvents: this.pointerEvents,
+    style: [this.styles.container(), this.props.style]
+  });
+});
+
 type.defineStyles({
   container: {
     position: "absolute",
@@ -169,13 +176,6 @@ type.defineStyles({
     },
     backgroundColor: "transparent"
   }
-});
-
-type.render(function(props) {
-  return View({
-    pointerEvents: this.pointerEvents,
-    style: [this.styles.container(), props.style]
-  });
 });
 
 module.exports = type.construct();

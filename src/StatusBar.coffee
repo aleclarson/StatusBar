@@ -120,6 +120,12 @@ type.defineNativeValues
   pointerEvents: -> =>
     if @isHiding then "none" else "auto"
 
+type.render ->
+  return View {
+    @pointerEvents
+    style: [ @styles.container(), @props.style ]
+  }
+
 type.defineStyles
 
   container:
@@ -129,11 +135,5 @@ type.defineStyles
     right: 0
     height: -> @height
     backgroundColor: "transparent"
-
-type.render (props) ->
-  return View {
-    @pointerEvents
-    style: [ @styles.container(), props.style ]
-  }
 
 module.exports = type.construct()
