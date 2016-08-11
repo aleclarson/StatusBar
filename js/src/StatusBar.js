@@ -1,8 +1,8 @@
-var Animation, Component, Event, Hideable, OneOf, StatusBarManager, Style, assertType, type;
+var Animation, Event, Hideable, OneOf, StatusBarManager, Style, Type, assertType, type;
 
 StatusBarManager = require("NativeModules").StatusBarManager;
 
-Component = require("component").Component;
+Type = require("modx").Type;
 
 assertType = require("assertType");
 
@@ -10,7 +10,7 @@ Hideable = require("hideable");
 
 OneOf = require("OneOf");
 
-Event = require("event");
+Event = require("Event");
 
 Style = OneOf("StatusBar_Style", ["white", "black"]);
 
@@ -21,9 +21,7 @@ Style.toNative = {
 
 Animation = OneOf("StatusBar_Animation", ["none", "fade", "slide"]);
 
-type = Component.Type("StatusBar");
-
-type.exposeGetters(["style"]);
+type = Type("StatusBar");
 
 type.defineReactiveValues({
   _style: null
@@ -82,6 +80,12 @@ type.defineProperties({
       }
       return StatusBarManager.setNetworkActivityIndicatorVisible(isBusy);
     }
+  }
+});
+
+type.defineGetters({
+  style: function() {
+    return this._style;
   }
 });
 
@@ -180,4 +184,4 @@ type.defineStyles({
 
 module.exports = type.construct();
 
-//# sourceMappingURL=../../map/src/StatusBar.map
+//# sourceMappingURL=map/StatusBar.map

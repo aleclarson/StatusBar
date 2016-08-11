@@ -1,20 +1,18 @@
 
-{ StatusBarManager } = require "NativeModules"
-{ Component } = require "component"
+{StatusBarManager} = require "NativeModules"
+{Type} = require "modx"
 
 assertType = require "assertType"
 Hideable = require "hideable"
 OneOf = require "OneOf"
-Event = require "event"
+Event = require "Event"
 
 Style = OneOf "StatusBar_Style", [ "white", "black" ]
 Style.toNative = { white: "light-content", black: "default" }
 
 Animation = OneOf "StatusBar_Animation", [ "none", "fade", "slide" ]
 
-type = Component.Type "StatusBar"
-
-type.exposeGetters [ "style" ]
+type = Type "StatusBar"
 
 type.defineReactiveValues
 
@@ -64,6 +62,10 @@ type.defineProperties
     didSet: (isBusy, wasBusy) ->
       return if isBusy is wasBusy
       StatusBarManager.setNetworkActivityIndicatorVisible isBusy
+
+type.defineGetters
+
+  style: -> @_style
 
 type.defineMethods
 
