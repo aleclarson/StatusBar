@@ -144,9 +144,9 @@ type.defineMethods({
   }
 });
 
-type.propTypes = {
-  style: Style
-};
+type.defineProps({
+  style: Style.isRequired
+});
 
 type.defineNativeValues({
   pointerEvents: function() {

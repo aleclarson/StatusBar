@@ -114,8 +114,8 @@ type.defineMethods
 # Rendering
 #
 
-type.propTypes =
-  style: Style
+type.defineProps
+  style: Style.isRequired
 
 type.defineNativeValues
 
