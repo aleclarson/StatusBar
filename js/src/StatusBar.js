@@ -150,15 +150,11 @@ type.defineProps({
 
 type.defineNativeValues({
   pointerEvents: function() {
-    return (function(_this) {
-      return function() {
-        if (_this.isHiding) {
-          return "none";
-        } else {
-          return "auto";
-        }
-      };
-    })(this);
+    if (this.isHiding) {
+      return "none";
+    } else {
+      return "auto";
+    }
   }
 });
 

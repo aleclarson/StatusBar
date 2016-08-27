@@ -119,7 +119,7 @@ type.defineProps
 
 type.defineNativeValues
 
-  pointerEvents: -> =>
+  pointerEvents: ->
     if @isHiding then "none" else "auto"
 
 type.render ->
