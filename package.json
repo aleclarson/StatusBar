@@ -1,20 +1,26 @@
 {
   "name": "StatusBar",
   "version": "1.0.0",
-  "main": "js/src/StatusBar",
+  "main": "js/StatusBar",
+  "plugins": [
+    "lotus-coffee"
+  ],
+  "scripts": {
+    "build": "coffee -cb -o js src",
+    "postinstall": "postinstall-build js 'npm run build'"
+  },
   "dependencies": {
     "Event": "aleclarson/Event#2.0.1",
     "OneOf": "aleclarson/OneOf#1.0.0",
     "assertType": "aleclarson/assertType#2.0.0",
     "hideable": "aleclarson/hideable#1.0.0",
-    "modx": "aleclarson/modx#1.0.0"
+    "modx": "aleclarson/modx#1.0.0",
+    "postinstall-build": "0.2.x"
   },
-  "lotus": {
-    "plugins": [
-      "lotus-coffee"
-    ],
-    "implicitDependencies": [
-      "NativeModules"
-    ]
-  }
+  "devDependencies": {
+    "coffee-script": "1.9.x"
+  },
+  "implicitDependencies": [
+    "NativeModules"
+  ]
 }
