@@ -10,7 +10,7 @@ Event = require "Event"
 Style = OneOf "StatusBar_Style", [ "white", "black" ]
 Style.toNative = { white: "light-content", black: "default" }
 
-Animation = OneOf "StatusBar_Animation", [ "none", "fade", "slide" ]
+Animation = OneOf "StatusBar_Animation", "none fade slide"
 
 type = Type "StatusBar"
 
@@ -18,41 +18,13 @@ type.defineReactiveValues
 
   _style: null
 
-type.defineFrozenValues
+type.defineFrozenValues ->
 
   height: 21
 
-  onPress: -> Event()
+  onPress: Event()
 
-  _states: -> []
-
-type.initInstance ->
-
-  show = (animation, onEnd) ->
-    unless onEnd?
-      onEnd = animation
-      animation = null
-    animation ?= "none"
-    assertType animation, Animation
-    StatusBarManager.setHidden no, animation
-    onEnd()
-    return
-
-  hide = (animation, onEnd) ->
-    unless onEnd?
-      onEnd = animation
-      animation = null
-    animation ?= "none"
-    assertType animation, Animation
-    StatusBarManager.setHidden yes, animation
-    onEnd()
-    return
-
-  Hideable this, {
-    isHiding: null
-    show
-    hide
-  }
+  _states: []
 
 type.defineProperties
 
@@ -109,6 +81,34 @@ type.defineMethods
     @_states.pop()
 
     @pushState @_states.pop()
+
+hideableMixin = Hideable
+
+  isHiding: null
+
+  show: (animation, onEnd) ->
+    unless onEnd?
+      onEnd = animation
+      animation = null
+    animation ?= "none"
+    assertType animation, Animation
+    StatusBarManager.setHidden no, animation
+    onEnd()
+    return
+
+  hide: (animation, onEnd) ->
+    unless onEnd?
+      onEnd = animation
+      animation = null
+    animation ?= "none"
+    assertType animation, Animation
+    StatusBarManager.setHidden yes, animation
+    onEnd()
+    return
+
+type.addMixins [
+  hideableMixin
+]
 
 #
 # Rendering
