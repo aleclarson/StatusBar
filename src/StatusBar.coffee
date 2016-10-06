@@ -7,10 +7,12 @@ Hideable = require "hideable"
 OneOf = require "OneOf"
 Event = require "Event"
 
-Style = OneOf "StatusBar_Style", [ "white", "black" ]
-Style.toNative = { white: "light-content", black: "default" }
+BarAnimation = OneOf "StatusBar_Animation", "none fade slide"
+BarStyle = OneOf "StatusBar_Style", "white black"
 
-Animation = OneOf "StatusBar_Animation", "none fade slide"
+nativeStyles =
+  white: "light-content"
+  black: "default"
 
 type = Type "StatusBar"
 
@@ -42,22 +44,24 @@ type.defineGetters
 type.defineMethods
 
   setHiding: (isHiding, animation) ->
-    if state.isHiding then @hide state.animation
-    else @show state.animation
+    assertType isHiding, Boolean
+    assertType animation, BarAnimation.Maybe
+    if isHiding then @hide animation
+    else @show animation
 
   setStyle: (style, animated = no) ->
-    assertType style, Style
+    assertType style, BarStyle
     return if style is @_style
-    StatusBarManager.setStyle Style.toNative[style], animated
+    StatusBarManager.setStyle nativeStyles[style], animated
     @_style = style
     return
 
   pushState: (state = {}) ->
 
     validateTypes state,
-      isHiding: [ Boolean, Void ]
-      animation: [ Animation, Void ]
-      style: [ Style, Void ]
+      isHiding: Boolean.Maybe
+      animation: BarAnimation.Maybe
+      style: BarStyle.Maybe
       animatedStyle: [ Boolean, Void ]
 
     state.isHiding ?= @isHiding
@@ -91,7 +95,7 @@ hideableMixin = Hideable
       onEnd = animation
       animation = null
     animation ?= "none"
-    assertType animation, Animation
+    assertType animation, BarAnimation
     StatusBarManager.setHidden no, animation
     onEnd()
     return
@@ -101,7 +105,7 @@ hideableMixin = Hideable
       onEnd = animation
       animation = null
     animation ?= "none"
-    assertType animation, Animation
+    assertType animation, BarAnimation
     StatusBarManager.setHidden yes, animation
     onEnd()
     return
@@ -115,7 +119,7 @@ type.addMixins [
 #
 
 type.defineProps
-  style: Style.isRequired
+  style: BarStyle.isRequired
 
 type.defineNativeValues
 
