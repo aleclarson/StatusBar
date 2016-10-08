@@ -86,7 +86,7 @@ type.defineMethods
 
     @pushState @_states.pop()
 
-hideableMixin = Hideable
+type.addMixin Hideable,
 
   isHiding: null
 
@@ -109,10 +109,6 @@ hideableMixin = Hideable
     StatusBarManager.setHidden yes, animation
     onEnd()
     return
-
-type.addMixins [
-  hideableMixin
-]
 
 #
 # Rendering
