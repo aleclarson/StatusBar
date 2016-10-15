@@ -6,19 +6,15 @@
     "lotus-coffee"
   ],
   "scripts": {
-    "build": "coffee -cb -o js src",
-    "postinstall": "postinstall-build js 'npm run build'"
+    "build": "coffee-build -v 1.11.x -b -o js src",
+    "postinstall": "npm run build"
   },
   "dependencies": {
     "Event": "aleclarson/Event#2.0.1",
     "OneOf": "aleclarson/OneOf#1.0.0",
     "assertType": "aleclarson/assertType#2.0.0",
     "hideable": "aleclarson/hideable#1.0.0",
-    "modx": "aleclarson/modx#1.0.0",
-    "postinstall-build": "0.2.x"
-  },
-  "devDependencies": {
-    "coffee-script": "1.9.x"
+    "modx": "aleclarson/modx#1.0.0"
   },
   "implicitDependencies": [
     "NativeModules"
