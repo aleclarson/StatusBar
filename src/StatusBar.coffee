@@ -37,6 +37,15 @@ type.defineProperties
       return if isBusy is wasBusy
       StatusBarManager.setNetworkActivityIndicatorVisible isBusy
 
+type.defineReactions
+
+  pointerEvents: ->
+    if @isHiding then "none" else "auto"
+
+#
+# Prototype
+#
+
 type.defineGetters
 
   style: -> @_style
@@ -116,11 +125,6 @@ type.addMixin Hideable,
 
 type.defineProps
   style: BarStyle.isRequired
-
-type.defineNativeValues
-
-  pointerEvents: ->
-    if @isHiding then "none" else "auto"
 
 type.render ->
   return View {
