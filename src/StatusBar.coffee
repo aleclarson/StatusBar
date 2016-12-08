@@ -1,6 +1,5 @@
 
-{StatusBarManager} = require "NativeModules"
-
+NativeModules = require "NativeModules"
 assertType = require "assertType"
 ReactType = require "modx/lib/Type"
 Hideable = require "hideable"
@@ -35,7 +34,8 @@ type.defineProperties
     reactive: yes
     didSet: (isBusy, wasBusy) ->
       return if isBusy is wasBusy
-      StatusBarManager.setNetworkActivityIndicatorVisible isBusy
+      NativeModules.StatusBarManager
+        .setNetworkActivityIndicatorVisible isBusy
 
 type.defineReactions
 
@@ -60,9 +60,10 @@ type.defineMethods
 
   setStyle: (style, animated = no) ->
     assertType style, BarStyle
-    return if style is @_style
-    StatusBarManager.setStyle nativeStyles[style], animated
-    @_style = style
+    if style isnt @_style
+      @_style = style
+      NativeModules.StatusBarManager
+        .setStyle nativeStyles[style], animated
     return
 
   pushState: (state = {}) ->
@@ -105,7 +106,8 @@ type.addMixin Hideable,
       animation = null
     animation ?= "none"
     assertType animation, BarAnimation
-    StatusBarManager.setHidden no, animation
+    NativeModules.StatusBarManager
+      .setHidden no, animation
     onEnd()
     return
 
@@ -115,7 +117,8 @@ type.addMixin Hideable,
       animation = null
     animation ?= "none"
     assertType animation, BarAnimation
-    StatusBarManager.setHidden yes, animation
+    NativeModules.StatusBarManager
+      .setHidden yes, animation
     onEnd()
     return
 
