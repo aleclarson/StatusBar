@@ -14,7 +14,7 @@
     "OneOf": "aleclarson/OneOf#1.0.0",
     "assertType": "aleclarson/assertType#2.0.0",
     "hideable": "aleclarson/hideable#1.0.0",
-    "modx": "aleclarson/modx#1.0.0"
+    "modx": "aleclarson/modx#2.1.0"
   },
   "implicitDependencies": [
     "NativeModules"

@@ -1,8 +1,8 @@
 
 {StatusBarManager} = require "NativeModules"
-{Type} = require "modx"
 
 assertType = require "assertType"
+ReactType = require "modx/lib/Type"
 Hideable = require "hideable"
 OneOf = require "OneOf"
 Event = require "Event"
@@ -14,7 +14,7 @@ nativeStyles =
   white: "light-content"
   black: "default"
 
-type = Type "StatusBar"
+type = ReactType "StatusBar"
 
 type.defineReactiveValues
 
