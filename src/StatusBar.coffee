@@ -1,107 +1,74 @@
 
-{ OneOf
-  assertType } = require "type-utils"
-
-{ StatusBarManager } = require "NativeModules"
-
+NativeModules = require "NativeModules"
+assertType = require "assertType"
+ReactType = require "modx/lib/Type"
 Hideable = require "hideable"
-Factory = require "factory"
-Event = require "event"
+OneOf = require "OneOf"
 
-Style = OneOf "StatusBar_Style", [
-  "white"
-  "black"
-]
+BarAnimation = OneOf "StatusBar_Animation", "none fade slide"
+BarStyle = OneOf "StatusBar_Style", "white black"
 
-Style.toNative =
+nativeStyles =
   white: "light-content"
   black: "default"
 
-Animation = OneOf "StatusBar_Animation", [
-  "none"
-  "fade"
-  "slide"
-]
+type = ReactType "StatusBar"
 
-module.exports =
-StatusBar = Factory "StatusBar", {
+type.defineReactiveValues
 
-  singleton: yes
+  _style: null
 
-  Style
+type.defineFrozenValues ->
 
-  Animation
+  height: 21
 
-  customValues:
+  _states: []
 
-    isBusy:
-      value: no
-      reactive: yes
-      didSet: (isBusy, wasBusy) ->
-        return if isBusy is wasBusy
-        StatusBarManager.setNetworkActivityIndicatorVisible isBusy
+type.defineProperties
 
-    style: get: ->
-      @_style
+  isBusy:
+    value: no
+    reactive: yes
+    didSet: (isBusy, wasBusy) ->
+      return if isBusy is wasBusy
+      NativeModules.StatusBarManager
+        .setNetworkActivityIndicatorVisible isBusy
 
-    render: lazy: ->
-      require "./StatusBarView"
+type.defineReactions
 
-  initFrozenValues: ->
+  pointerEvents: ->
+    if @isHiding then "none" else "auto"
 
-    height: 21
+#
+# Prototype
+#
 
-    onPress: Event()
+type.defineGetters
 
-    _states: []
+  style: -> @_style
 
-  initReactiveValues: ->
-
-    _style: null
-
-  init: ->
-
-    Hideable this,
-
-      isHiding: null
-
-      show: (animation, onEnd) ->
-        unless onEnd?
-          onEnd = animation
-          animation = null
-        animation ?= "none"
-        assertType animation, Animation
-        StatusBarManager.setHidden no, animation
-        onEnd()
-        return
-
-      hide: (animation, onEnd) ->
-        unless onEnd?
-          onEnd = animation
-          animation = null
-        animation ?= "none"
-        assertType animation, Animation
-        StatusBarManager.setHidden yes, animation
-        onEnd()
-        return
+type.defineMethods
 
   setHiding: (isHiding, animation) ->
-    if state.isHiding then @hide state.animation
-    else @show state.animation
+    assertType isHiding, Boolean
+    assertType animation, BarAnimation.Maybe
+    if isHiding then @hide animation
+    else @show animation
 
   setStyle: (style, animated = no) ->
-    assertType style, Style
-    return if style is @_style
-    StatusBarManager.setStyle Style.toNative[style], animated
-    @_style = style
+    assertType style, BarStyle
+    if style isnt @_style
+      @_style = style
+      NativeModules.StatusBarManager
+        .setStyle nativeStyles[style], animated
     return
 
   pushState: (state = {}) ->
 
     validateTypes state,
-      isHiding: [ Boolean, Void ]
-      animation: [ Animation, Void ]
-      style: [ Style, Void ]
+      isHiding: Boolean.Maybe
+      animation: BarAnimation.Maybe
+      style: BarStyle.Maybe
       animatedStyle: [ Boolean, Void ]
 
     state.isHiding ?= @isHiding
@@ -125,4 +92,54 @@ StatusBar = Factory "StatusBar", {
     @_states.pop()
 
     @pushState @_states.pop()
-}
+
+type.addMixin Hideable,
+
+  isHiding: null
+
+  show: (animation, onEnd) ->
+    unless onEnd?
+      onEnd = animation
+      animation = null
+    animation ?= "none"
+    assertType animation, BarAnimation
+    NativeModules.StatusBarManager
+      .setHidden no, animation
+    onEnd()
+    return
+
+  hide: (animation, onEnd) ->
+    unless onEnd?
+      onEnd = animation
+      animation = null
+    animation ?= "none"
+    assertType animation, BarAnimation
+    NativeModules.StatusBarManager
+      .setHidden yes, animation
+    onEnd()
+    return
+
+#
+# Rendering
+#
+
+type.defineProps
+  style: BarStyle.isRequired
+
+type.render ->
+  return View {
+    @pointerEvents
+    style: [ @styles.container(), @props.style ]
+  }
+
+type.defineStyles
+
+  container:
+    position: "absolute"
+    top: 0
+    left: 0
+    right: 0
+    height: -> @height
+    backgroundColor: "transparent"
+
+module.exports = type.construct()
