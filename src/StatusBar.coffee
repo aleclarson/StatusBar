@@ -4,7 +4,6 @@ assertType = require "assertType"
 ReactType = require "modx/lib/Type"
 Hideable = require "hideable"
 OneOf = require "OneOf"
-Event = require "Event"
 
 BarAnimation = OneOf "StatusBar_Animation", "none fade slide"
 BarStyle = OneOf "StatusBar_Style", "white black"
@@ -22,8 +21,6 @@ type.defineReactiveValues
 type.defineFrozenValues ->
 
   height: 21
-
-  onPress: Event()
 
   _states: []
 
