@@ -10,9 +10,9 @@
     "postinstall": "npm run build"
   },
   "dependencies": {
+    "Hideable": "aleclarson/Hideable#1.3.0",
     "OneOf": "aleclarson/OneOf#1.0.1",
     "assertType": "aleclarson/assertType#2.0.1",
-    "hideable": "aleclarson/hideable#1.2.0",
     "modx": "aleclarson/modx#2.1.0"
   },
   "implicitDependencies": [
