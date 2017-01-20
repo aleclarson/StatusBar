@@ -1,0 +1,8 @@
+node_modules
+lab
+
+src/
+spec/
+**/*.map
+README.md
+LICENSE

@@ -1,0 +1,11 @@
+{
+  "name": "StatusBar",
+  "version": "2.0.0",
+  "main": "js/StatusBar",
+  "dependencies": {
+    "OneOf": "aleclarson/OneOf#1.0.1",
+    "assertType": "aleclarson/assertType#2.0.1",
+    "hideable": "aleclarson/hideable#1.2.0",
+    "modx": "aleclarson/modx#2.1.0"
+  }
+}
