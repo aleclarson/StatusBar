@@ -2,7 +2,7 @@
 NativeModules = require "NativeModules"
 assertType = require "assertType"
 ReactType = require "modx/lib/Type"
-Hideable = require "hideable"
+Hideable = require "Hideable"
 OneOf = require "OneOf"
 
 BarAnimation = OneOf "StatusBar_Animation", "none fade slide"
